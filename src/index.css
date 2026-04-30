@@ -8,3 +8,10 @@
   --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
   --color-indigo-500: #6366f1;
 }
+
+.regex-match {
+  background-color: rgba(99, 102, 241, 0.25);
+  border-radius: 2px;
+  outline: 1px solid rgba(99, 102, 241, 0.45);
+  outline-offset: -1px;
+}
