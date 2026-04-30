@@ -1,1 +1,137 @@
-[]
+[
+  {
+    "id": "val-email",
+    "category": "Validation",
+    "label": "Email Address",
+    "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+    "flags": "g",
+    "sample": "Contact us at hello@example.com or support@my-site.org for help.",
+    "description": "Matches standard email addresses"
+  },
+  {
+    "id": "val-phone",
+    "category": "Validation",
+    "label": "US Phone Number",
+    "pattern": "\\(?\\d{3}\\)?[-.\\s]\\d{3}[-.\\s]\\d{4}",
+    "flags": "g",
+    "sample": "Call (555) 867-5309 or 800-555-0199 or 415.555.2671 today.",
+    "description": "Matches (555) 867-5309, 800-555-0199, and 415.555.2671 formats"
+  },
+  {
+    "id": "val-url",
+    "category": "Validation",
+    "label": "URL",
+    "pattern": "https?://[^\\s/$.?#][^\\s]*",
+    "flags": "g",
+    "sample": "Visit https://example.com or http://blog.dev/posts?ref=home for more.",
+    "description": "Matches http and https URLs"
+  },
+  {
+    "id": "val-ipv4",
+    "category": "Validation",
+    "label": "IPv4 Address",
+    "pattern": "\\b(?:(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\b",
+    "flags": "g",
+    "sample": "Server 192.168.1.1, gateway 10.0.0.1, blocked 203.0.113.42.",
+    "description": "Matches valid IPv4 addresses with strict 0-255 octet validation"
+  },
+  {
+    "id": "val-zip",
+    "category": "Validation",
+    "label": "US ZIP Code",
+    "pattern": "\\b\\d{5}(?:-\\d{4})?\\b",
+    "flags": "g",
+    "sample": "Ship to 90210, billing 10001-1234, warehouse 30301.",
+    "description": "Matches 5-digit and ZIP+4 (e.g. 10001-1234) formats"
+  },
+  {
+    "id": "ext-numbers",
+    "category": "Extraction",
+    "label": "Numbers",
+    "pattern": "-?\\d+(?:\\.\\d+)?",
+    "flags": "g",
+    "sample": "Temperature -3.5 C, wind 12 mph, humidity 87%, pressure 1013.25 hPa.",
+    "description": "Extracts integers and decimals, including negatives"
+  },
+  {
+    "id": "ext-dates",
+    "category": "Extraction",
+    "label": "Dates (YYYY-MM-DD)",
+    "pattern": "\\b\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])\\b",
+    "flags": "g",
+    "sample": "Sprint from 2024-01-15 to 2024-01-29, reviewed on 2024-02-03.",
+    "description": "Extracts ISO 8601 dates (YYYY-MM-DD)"
+  },
+  {
+    "id": "ext-hashtags",
+    "category": "Extraction",
+    "label": "Hashtags",
+    "pattern": "#\\w+",
+    "flags": "g",
+    "sample": "Loving #WebDev! Check #react and #tailwindcss. #100DaysOfCode trending.",
+    "description": "Extracts #hashtags from text"
+  },
+  {
+    "id": "ext-mentions",
+    "category": "Extraction",
+    "label": "@Mentions",
+    "pattern": "@\\w+",
+    "flags": "g",
+    "sample": "Thanks @alice and @bob_dev! @carol reviewed the PR and @dave42 merged it.",
+    "description": "Extracts @mentions from social-media text"
+  },
+  {
+    "id": "ext-hex",
+    "category": "Extraction",
+    "label": "Hex Color Codes",
+    "pattern": "#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\\b",
+    "flags": "g",
+    "sample": "Background #1a1a2e, accent #6366f1, hover #818cf8, border #e5e7eb, white #fff.",
+    "description": "Extracts 3- and 6-digit CSS hex color codes"
+  },
+  {
+    "id": "clean-whitespace",
+    "category": "Cleanup",
+    "label": "Extra Whitespace",
+    "pattern": "\\s{2,}",
+    "flags": "g",
+    "sample": "Fix  these   spaces    before   submitting \t\t the form.",
+    "description": "Finds 2+ consecutive whitespace characters to collapse"
+  },
+  {
+    "id": "clean-html",
+    "category": "Cleanup",
+    "label": "HTML Tags",
+    "pattern": "<[^>]+>",
+    "flags": "g",
+    "sample": "<h1>Welcome</h1><p>This is <strong>bold</strong> and <em>italic</em>.</p>",
+    "description": "Matches HTML/XML tags for stripping markup"
+  },
+  {
+    "id": "clean-trailing-punct",
+    "category": "Cleanup",
+    "label": "Trailing Punctuation",
+    "pattern": "[.,!?;:]+$",
+    "flags": "gm",
+    "sample": "First sentence.\nSecond line!\nThird, with comma,\nNo punctuation here\nFinal line...",
+    "description": "Matches punctuation at the end of each line"
+  },
+  {
+    "id": "clean-duplicate-words",
+    "category": "Cleanup",
+    "label": "Duplicate Words",
+    "pattern": "\\b(\\w+)\\s+\\1\\b",
+    "flags": "gi",
+    "sample": "The the cat sat sat on on the mat and and looked at us.",
+    "description": "Finds consecutive duplicate words (e.g. 'the the')"
+  },
+  {
+    "id": "clean-line-spaces",
+    "category": "Cleanup",
+    "label": "Leading / Trailing Spaces",
+    "pattern": "^\\s+|\\s+$",
+    "flags": "gm",
+    "sample": "  indented line\n   another with trailing   \nnormal line\n    padded on both sides   ",
+    "description": "Matches leading and trailing whitespace on each line"
+  }
+]

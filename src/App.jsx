@@ -29,6 +29,12 @@ export default function App() {
     })
   }
 
+  function loadExample({ pattern, flags, sample }) {
+    setPattern(pattern)
+    setFlags(flags)
+    setTestString(sample)
+  }
+
   const { regex, error } = useMemo(() => parseRegex(pattern, flags), [pattern, flags])
   const matches = useMemo(() => getMatches(regex, testString), [regex, testString])
 
@@ -37,7 +43,7 @@ export default function App() {
       <Header darkMode={darkMode} onToggleDark={() => setDarkMode(d => !d)} />
 
       <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
-        <Sidebar />
+        <Sidebar onLoadExample={loadExample} />
         <EditorPanel
           pattern={pattern}
           testString={testString}

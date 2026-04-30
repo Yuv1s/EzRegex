@@ -20,7 +20,7 @@ This roadmap captures the full development plan: the vision, the technical decis
   - [Step 2 — Polished Shell ✅](#step-2--polished-shell-)
   - [Step 3 — Live Regex Matching ✅](#step-3--live-regex-matching-)
   - [Step 4 — Flag Toggles ✅](#step-4--flag-toggles-)
-  - [Step 5 — Examples Panel](#step-5--examples-panel)
+  - [Step 5 — Examples Panel ✅](#step-5--examples-panel-)
   - [Step 6 — Plain-English Breakdown](#step-6--plain-english-breakdown)
   - [Step 7 — Polish Pass](#step-7--polish-pass)
   - [Step 8 — Deploy to Vercel](#step-8--deploy-to-vercel)
@@ -35,7 +35,7 @@ Most regex tools assume you already know regex. They give you a blank input fiel
 
 **EzRegex flips that.** It's a regex playground that:
 
-- Lets you test patterns against real strings with live, color coded match highlighting
+- Lets you test patterns against real strings with live, color-coded match highlighting
 - Explains what your regex actually means in plain English, updated as you type
 - Comes with a categorized library of common examples you can load and modify
 
@@ -196,7 +196,7 @@ global, find all matches").
 
 ---
 
-### Step 5 — Examples Panel
+### Step 5 — Examples Panel ✅
 
 **Goal:** new users have something to click. The examples panel is the on-ramp for everyone who arrives without a regex of their own.
 
@@ -371,6 +371,7 @@ git add -A
 git commit -m "your message here"
 git push
 ```
+
 ---
 
 ## Lessons Learned
@@ -395,10 +396,22 @@ git push
 
 ### Step 4 — Flag Toggles
 
-- *(fill in once complete — what worked, what didn't, surprises)*
+- **`z-index` doesn't help once a parent clips you.** The flag tooltips were getting cut off by the examples panel and my first instinct was to crank up `z-index`. Didn't work. The actual problem: `<main>` had `overflow-y: auto` on it, and the CSS spec forces `overflow-x: auto` to come along for the ride which means the element clips its children on both axes. Once you're clipped, no z-index value can save you because the pixels never get drawn outside the box in the first place.
+- **The fix: `createPortal` to `document.body`.** Render the tooltip outside every overflow container by portaling it into `<body>`. Use `getBoundingClientRect()` on `mouseenter` to grab the button's viewport position, then `position: fixed` plus `z-index: 9999` to pin the tooltip there. Dark mode still works without any extra wiring because `document.body` is a descendant of `<html class="dark">`, so Tailwind's `dark:` variants resolve normally.
+- **Lesson for next time:** when something gets clipped, check the overflow on every ancestor before reaching for z-index. Z-index is for stacking order *within* a layer; portals are the answer when you need to escape the layer entirely.
+
+### Step 5 — Examples Panel
+
+- **The default scrollbar looked out of place.** The examples panel built fine on the first try, but the scrollbar showed up as a white track with a grey thumb against a dark UI, super jarring. Fixed it with a custom `.scrollbar-indigo` utility in `src/index.css`: transparent track, indigo thumb at `rgba(99, 102, 241, 0.4)` that brightens on hover. Wrote it for both Webkit (Chrome/Edge/Safari) and Firefox so it works everywhere.
+- **`<mark>` has its own default colors that override inherited ones.** The match highlight text was turning black in dark mode because browsers ship `<mark>` with a built-in dark text color. Inheriting from the parent doesn't help if the element has its own color rule. Fix was a one-liner: `color: inherit` on `.regex-match` to force it to actually inherit instead of using the user-agent default.
+- **Lesson for next time:** when a styled element looks wrong, check the user-agent stylesheet before assuming inheritance is broken. Some HTML elements (`<mark>`, `<button>`, `<input>`) come with default styles that quietly override what you'd expect.
+
+### Step 6 — Plain-English Breakdown
+
+- *(fill in once complete - what worked, what didn't, surprises)*
 
 ---
 
-*Last updated after Step 4.*
+*Last updated after Step 5.*
 
 *Thanks for following along!*

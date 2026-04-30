@@ -14,4 +14,27 @@
   border-radius: 2px;
   outline: 1px solid rgba(99, 102, 241, 0.45);
   outline-offset: -1px;
+  color: inherit;
+}
+
+.scrollbar-indigo {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99, 102, 241, 0.45) transparent;
+}
+
+.scrollbar-indigo::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-indigo::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-indigo::-webkit-scrollbar-thumb {
+  background-color: rgba(99, 102, 241, 0.4);
+  border-radius: 3px;
+}
+
+.scrollbar-indigo::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(99, 102, 241, 0.65);
 }
