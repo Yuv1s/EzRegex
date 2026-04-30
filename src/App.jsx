@@ -43,7 +43,7 @@ export default function App() {
       <Header darkMode={darkMode} onToggleDark={() => setDarkMode(d => !d)} />
 
       <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
-        <Sidebar onLoadExample={loadExample} />
+        <Sidebar onLoadExample={loadExample} pattern={pattern} flags={flags} />
         <EditorPanel
           pattern={pattern}
           testString={testString}

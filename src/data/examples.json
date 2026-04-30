@@ -45,6 +45,33 @@
     "description": "Matches 5-digit and ZIP+4 (e.g. 10001-1234) formats"
   },
   {
+    "id": "val-uuid",
+    "category": "Validation",
+    "label": "UUID",
+    "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}",
+    "flags": "gi",
+    "sample": "User 550e8400-e29b-41d4-a716-446655440000 opened session 6ba7b810-9dad-11d1-80b4-00c04fd430c8.",
+    "description": "Matches RFC 4122 UUIDs (versions 1-5)"
+  },
+  {
+    "id": "val-semver",
+    "category": "Validation",
+    "label": "Semantic Version",
+    "pattern": "\\bv?\\d+\\.\\d+\\.\\d+(?:-[a-zA-Z0-9.]+)?\\b",
+    "flags": "g",
+    "sample": "Released v2.1.0, upgraded react from 18.2.0 to 19.0.0, babel 8.0.0-beta.3 pending.",
+    "description": "Matches semver numbers like 2.1.0 or v1.0.0-beta.1"
+  },
+  {
+    "id": "val-mac",
+    "category": "Validation",
+    "label": "MAC Address",
+    "pattern": "(?:[0-9A-Fa-f]{2}[-:]){5}[0-9A-Fa-f]{2}",
+    "flags": "g",
+    "sample": "Router 00:1A:2B:3C:4D:5E, laptop AC-DE-48-00-00-80, VM 08:00:27:AB:CD:EF.",
+    "description": "Matches MAC addresses with : or - separators"
+  },
+  {
     "id": "ext-numbers",
     "category": "Extraction",
     "label": "Numbers",
@@ -90,6 +117,33 @@
     "description": "Extracts 3- and 6-digit CSS hex color codes"
   },
   {
+    "id": "ext-jwt",
+    "category": "Extraction",
+    "label": "JWT Token",
+    "pattern": "eyJ[a-zA-Z0-9_-]+\\.eyJ[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+",
+    "flags": "g",
+    "sample": "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzQ1NiIsImlhdCI6MTcxNjIzOTAyMn0.X4CZqB7fJkLeMHtDVyUuIlxKbOzcEFGhWI",
+    "description": "Matches JWT tokens (header.payload.signature)"
+  },
+  {
+    "id": "ext-md-link",
+    "category": "Extraction",
+    "label": "Markdown Links",
+    "pattern": "\\[([^\\]]+)\\]\\((https?://[^)]+)\\)",
+    "flags": "g",
+    "sample": "Check the [docs](https://docs.example.com) and [repo](https://github.com/user/repo). See [changelog](https://example.com/releases).",
+    "description": "Matches Markdown hyperlinks [label](url)"
+  },
+  {
+    "id": "ext-git-hash",
+    "category": "Extraction",
+    "label": "Git Commit Hash",
+    "pattern": "\\b[0-9a-f]{7,40}\\b",
+    "flags": "g",
+    "sample": "Merge a1b2c3d into main. Reverted 9f8e7d6c5b4a3210fedcba98, cherry-picked abc1234.",
+    "description": "Matches short (7-char) and full (40-char) Git commit hashes"
+  },
+  {
     "id": "clean-whitespace",
     "category": "Cleanup",
     "label": "Extra Whitespace",
@@ -133,5 +187,77 @@
     "flags": "gm",
     "sample": "  indented line\n   another with trailing   \nnormal line\n    padded on both sides   ",
     "description": "Matches leading and trailing whitespace on each line"
+  },
+  {
+    "id": "clean-empty-lines",
+    "category": "Cleanup",
+    "label": "Empty Lines",
+    "pattern": "^\\s*$",
+    "flags": "gm",
+    "sample": "First paragraph.\n\n\nSecond paragraph.\n\n\n\nThird paragraph.",
+    "description": "Matches blank or whitespace-only lines"
+  },
+  {
+    "id": "clean-url-encoded",
+    "category": "Cleanup",
+    "label": "URL-encoded Characters",
+    "pattern": "%[0-9A-Fa-f]{2}",
+    "flags": "g",
+    "sample": "GET /search?q=hello%20world&lang=en%2FUS&tag=caf%C3%A9%20%F0%9F%94%A5 HTTP/1.1",
+    "description": "Matches percent-encoded sequences in URLs (e.g. %20)"
+  },
+  {
+    "id": "code-import",
+    "category": "Code",
+    "label": "ES6 Import Statements",
+    "pattern": "^import\\s+.+\\s+from\\s+['\"][^'\"]+['\"]",
+    "flags": "gm",
+    "sample": "import React, { useState } from 'react'\nimport { motion } from 'framer-motion'\nimport type { FC } from 'react'\nimport styles from './App.module.css'",
+    "description": "Matches ES6 named and default import declarations"
+  },
+  {
+    "id": "code-console",
+    "category": "Code",
+    "label": "console.* Calls",
+    "pattern": "console\\.\\w+\\([^)]*\\)",
+    "flags": "g",
+    "sample": "console.log(\"start\"); console.error(\"failed:\", err); console.warn(\"slow\"); console.table(rows);",
+    "description": "Matches console.log, .error, .warn, .info, and .table calls"
+  },
+  {
+    "id": "code-todo",
+    "category": "Code",
+    "label": "TODO / FIXME Comments",
+    "pattern": "//\\s*(?:TODO|FIXME|HACK|NOTE):?\\s*.+",
+    "flags": "gi",
+    "sample": "function render() {\n  // TODO: handle null case\n  // FIXME: breaks on Safari\n  const x = fn() // NOTE: cached result\n  // HACK: force refresh\n}",
+    "description": "Finds TODO, FIXME, HACK, and NOTE developer comments"
+  },
+  {
+    "id": "code-comment",
+    "category": "Code",
+    "label": "Single-line Comments",
+    "pattern": "//.*$",
+    "flags": "gm",
+    "sample": "const x = 1; // initial value\nlet y = x + 2; // add two\n// standalone comment\nreturn y; // done",
+    "description": "Matches everything from // to end of line"
+  },
+  {
+    "id": "code-template",
+    "category": "Code",
+    "label": "Template Literal Expressions",
+    "pattern": "\\$\\{[^}]+\\}",
+    "flags": "g",
+    "sample": "Hello ${firstName} ${lastName}, you have ${unread} messages from ${user.name}!",
+    "description": "Extracts ${...} interpolation expressions from template literals"
+  },
+  {
+    "id": "code-env-var",
+    "category": "Code",
+    "label": "process.env Variables",
+    "pattern": "process\\.env\\.[A-Z_][A-Z0-9_]*",
+    "flags": "g",
+    "sample": "const url = process.env.API_URL;\nconst key = process.env.SECRET_KEY;\nconst port = process.env.PORT || 3000;",
+    "description": "Finds Node.js environment variable references"
   }
 ]

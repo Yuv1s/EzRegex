@@ -406,12 +406,26 @@ git push
 - **`<mark>` has its own default colors that override inherited ones.** The match highlight text was turning black in dark mode because browsers ship `<mark>` with a built-in dark text color. Inheriting from the parent doesn't help if the element has its own color rule. Fix was a one-liner: `color: inherit` on `.regex-match` to force it to actually inherit instead of using the user-agent default.
 - **Lesson for next time:** when a styled element looks wrong, check the user-agent stylesheet before assuming inheritance is broken. Some HTML elements (`<mark>`, `<button>`, `<input>`) come with default styles that quietly override what you'd expect.
 
+#### Bonus work (built solo, no AI assistance)
+
+Before tackling Step 6, I wanted to get more comfortable writing React on my own, so I extended the examples panel by hand:
+
+- **Expanded the example library** with a lot more entries beyond the original 15
+- **Color coded the categories** so each one is visually distinct in the panel
+- **Added live match detection** so when the regex in the editor matches one of the saved examples, that example card highlights/focuses in the sidebar and auto scrolls into view if it's off screen
+
+What I took away from doing it without help:
+
+- **React isn't as different as I thought.** Honestly it just feels like a more organized, bundled version of HTML, CSS, and JavaScript. Once you stop being intimidated by the JSX and the hooks, it's the same web fundamentals you already know.
+- **JSON files are stupidly good for structured data.** I underestimated how easy it would be to search and filter through a JSON file at runtime. The match detection feature is basically just a `.find()` over the examples array, no database, no complexity.
+- **Code that works isn't the same as code that's good.** The first version of the match detection was running on every keystroke without any thought to how often it was scanning the whole list. Got it working, then went back and made it efficient. The lesson is that "looks fine and functions" is the floor, not the ceiling.
+
 ### Step 6 — Plain-English Breakdown
 
 - *(fill in once complete - what worked, what didn't, surprises)*
 
 ---
 
-*Last updated after Step 5.*
+*Last updated after Bonus work.*
 
 *Thanks for following along!*
