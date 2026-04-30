@@ -1,7 +1,58 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { buildHighlightedHtml } from '../lib/regexEngine'
 
-export default function EditorPanel({ pattern, testString, error, matches, onPatternChange, onTestStringChange, darkMode }) {
+const FLAG_META = [
+  { flag: 'g', tip: 'global - find all matches' },
+  { flag: 'i', tip: 'case insensitive' },
+  { flag: 'm', tip: 'multiline - ^ and $ match line boundaries' },
+  { flag: 's', tip: 'dotAll - . matches newlines too' },
+]
+
+function FlagPill({ flag, tip, active, onToggle }) {
+  const [pos, setPos] = useState(null)
+  const btnRef = useRef(null)
+
+  function showTooltip() {
+    if (btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect()
+      setPos({ top: r.bottom + 8, left: r.left + r.width / 2 })
+    }
+  }
+
+  return (
+    <>
+      <button
+        ref={btnRef}
+        onClick={() => onToggle(flag)}
+        onMouseEnter={showTooltip}
+        onMouseLeave={() => setPos(null)}
+        aria-pressed={active}
+        className={`px-2 py-0.5 rounded font-mono text-xs font-medium transition-colors ${
+          active
+            ? 'bg-indigo-500 text-white'
+            : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-300'
+        }`}
+      >
+        {flag}
+      </button>
+
+      {pos && createPortal(
+        <div
+          style={{ position: 'fixed', top: pos.top, left: pos.left, transform: 'translateX(-50%)', zIndex: 9999 }}
+          className="px-2 py-1 rounded bg-gray-800 dark:bg-gray-700 text-white text-xs whitespace-nowrap pointer-events-none"
+        >
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800 dark:border-b-gray-700" />
+          <span className="font-mono text-indigo-300">{flag}</span>
+          <span className="text-gray-300">: {tip}</span>
+        </div>,
+        document.body
+      )}
+    </>
+  )
+}
+
+export default function EditorPanel({ pattern, testString, error, matches, flags, onPatternChange, onTestStringChange, onFlagToggle, darkMode }) {
   const backdropRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -33,8 +84,21 @@ export default function EditorPanel({ pattern, testString, error, matches, onPat
             className="flex-1 px-3 py-2.5 font-mono text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-600 outline-none"
           />
           <span className="px-3 py-2.5 text-gray-400 dark:text-gray-500 font-mono text-sm bg-gray-50 dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 select-none">
-            /g
+            /{flags}
           </span>
+        </div>
+
+        {/* Flag toggles */}
+        <div className="flex items-center gap-1.5">
+          {FLAG_META.map(({ flag, tip }) => (
+            <FlagPill
+              key={flag}
+              flag={flag}
+              tip={tip}
+              active={flags.includes(flag)}
+              onToggle={onFlagToggle}
+            />
+          ))}
         </div>
 
         {error && (

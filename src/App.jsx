@@ -5,10 +5,13 @@ import EditorPanel from './components/EditorPanel'
 import ResultsPanel from './components/ResultsPanel'
 import { parseRegex, getMatches } from './lib/regexEngine'
 
+const CANONICAL_FLAG_ORDER = 'gims'
+
 export default function App() {
   const [darkMode, setDarkMode] = useState(true)
   const [pattern, setPattern] = useState('')
   const [testString, setTestString] = useState('')
+  const [flags, setFlags] = useState('g')
 
   useEffect(() => {
     const root = document.documentElement
@@ -19,7 +22,14 @@ export default function App() {
     }
   }, [darkMode])
 
-  const { regex, error } = useMemo(() => parseRegex(pattern), [pattern])
+  function toggleFlag(f) {
+    setFlags(prev => {
+      const next = prev.includes(f) ? prev.replace(f, '') : prev + f
+      return CANONICAL_FLAG_ORDER.split('').filter(c => next.includes(c)).join('')
+    })
+  }
+
+  const { regex, error } = useMemo(() => parseRegex(pattern, flags), [pattern, flags])
   const matches = useMemo(() => getMatches(regex, testString), [regex, testString])
 
   return (
@@ -33,8 +43,10 @@ export default function App() {
           testString={testString}
           error={error}
           matches={matches}
+          flags={flags}
           onPatternChange={setPattern}
           onTestStringChange={setTestString}
+          onFlagToggle={toggleFlag}
           darkMode={darkMode}
         />
         <ResultsPanel matches={matches} />

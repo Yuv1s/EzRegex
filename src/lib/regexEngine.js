@@ -1,8 +1,7 @@
 export function parseRegex(pattern, flags = 'g') {
   if (!pattern) return { regex: null, error: null }
   try {
-    const effectiveFlags = flags.includes('g') ? flags : flags + 'g'
-    return { regex: new RegExp(pattern, effectiveFlags), error: null }
+    return { regex: new RegExp(pattern, flags), error: null }
   } catch (e) {
     return { regex: null, error: e.message }
   }
@@ -12,10 +11,15 @@ export function getMatches(regex, testString) {
   if (!regex || !testString) return []
   const results = []
   regex.lastIndex = 0
-  let m
-  while ((m = regex.exec(testString)) !== null) {
-    results.push({ index: m.index, end: m.index + m[0].length, value: m[0], groups: m.slice(1) })
-    if (m[0].length === 0) regex.lastIndex++
+  if (regex.global) {
+    let m
+    while ((m = regex.exec(testString)) !== null) {
+      results.push({ index: m.index, end: m.index + m[0].length, value: m[0], groups: m.slice(1) })
+      if (m[0].length === 0) regex.lastIndex++
+    }
+  } else {
+    const m = regex.exec(testString)
+    if (m) results.push({ index: m.index, end: m.index + m[0].length, value: m[0], groups: m.slice(1) })
   }
   return results
 }

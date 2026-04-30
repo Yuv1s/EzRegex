@@ -1,8 +1,8 @@
 # EzRegex
 
-A regex playground with live plain-English breakdowns of your patterns.
+A regex playground with live plain English breakdowns of your patterns.
 
-> **Work in progress** — core logic not yet implemented.
+> **Work in progress**, core logic not yet implemented.
 
 ## Tech stack
 
