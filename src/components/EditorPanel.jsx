@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { buildHighlightedHtml } from '../lib/regexEngine'
+import { summarizeRegex } from '../lib/regexExplainer'
 
 const FLAG_META = [
   { flag: 'g', tip: 'global - find all matches' },
@@ -52,7 +53,7 @@ function FlagPill({ flag, tip, active, onToggle }) {
   )
 }
 
-export default function EditorPanel({ pattern, testString, error, matches, flags, onPatternChange, onTestStringChange, onFlagToggle, darkMode }) {
+export default function EditorPanel({ pattern, testString, error, matches, flags, onPatternChange, onTestStringChange, onFlagToggle, darkMode, chunks }) {
   const backdropRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -105,9 +106,17 @@ export default function EditorPanel({ pattern, testString, error, matches, flags
           <p className="text-xs text-red-500 dark:text-red-400 font-mono px-1">{error}</p>
         )}
 
-        {/* Plain-English breakdown placeholder */}
-        <div className="min-h-10 px-3 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 text-xs text-indigo-400 dark:text-indigo-500 font-mono">
-          Plain-English breakdown will appear here — <span className="opacity-60">TODO</span>
+        {/* Plain-English summary of what the regex matches */}
+        <div className="min-h-10 px-3 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50">
+          {chunks?.length > 0 ? (
+            <p className="text-xs text-indigo-700 dark:text-indigo-300 leading-relaxed">
+              {summarizeRegex(chunks)}
+            </p>
+          ) : (
+            <p className="text-xs text-indigo-300 dark:text-indigo-600 italic">
+              An English description of your regex will appear here
+            </p>
+          )}
         </div>
       </section>
 

@@ -1,6 +1,10 @@
 import RegexDisplay, { TYPE_TEXT } from './RegexDisplay'
 
-export default function ResultsPanel({ chunks = [], hoveredChunkId, onChunkHover }) {
+// Flash color when a span click highlights its card
+const CARD_FLASH_BG  = 'bg-indigo-100 dark:bg-indigo-800/40'
+const CARD_HOVER_BG  = 'bg-indigo-50 dark:bg-indigo-950/40'
+
+export default function ResultsPanel({ chunks = [], hoveredChunkId, onChunkHover, flashedChunkId, onChunkClick }) {
   const hasChunks = chunks.length > 0
 
   return (
@@ -17,6 +21,8 @@ export default function ResultsPanel({ chunks = [], hoveredChunkId, onChunkHover
             chunks={chunks}
             hoveredChunkId={hoveredChunkId}
             onChunkHover={onChunkHover}
+            flashedChunkId={flashedChunkId}
+            onChunkClick={onChunkClick}
           />
         </div>
       )}
@@ -31,18 +37,19 @@ export default function ResultsPanel({ chunks = [], hoveredChunkId, onChunkHover
         ) : (
           <div className="divide-y divide-gray-200 dark:divide-gray-800">
             {chunks.map(chunk => {
+              const isFlashing = chunk.id === flashedChunkId
               const isHovered  = chunk.id === hoveredChunkId
+              const cardBg     = isFlashing ? CARD_FLASH_BG : isHovered ? CARD_HOVER_BG : ''
               const rawColor   = TYPE_TEXT[chunk.type] ?? TYPE_TEXT.unknown
 
               return (
                 <div
                   key={chunk.id}
-                  data-chunk-id={chunk.id}
-                  className={`px-4 py-3 cursor-default transition-colors duration-100 ${
-                    isHovered ? 'bg-indigo-50 dark:bg-indigo-950/40' : ''
-                  }`}
+                  data-card-chunk-id={chunk.id}
+                  className={`px-4 py-3 cursor-default transition-colors duration-100 ${cardBg}`}
                   onMouseEnter={() => onChunkHover(chunk.id)}
                   onMouseLeave={() => onChunkHover(null)}
+                  onClick={() => onChunkClick(chunk.id)}
                 >
                   <p className={`font-mono text-xs mb-1 ${rawColor}`}>{chunk.raw}</p>
                   <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">

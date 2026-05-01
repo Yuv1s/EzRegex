@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import Header from './components/Header'
 import Sidebar from './components/Sidebar'
 import EditorPanel from './components/EditorPanel'
@@ -40,7 +40,17 @@ export default function App() {
   const matches          = useMemo(() => getMatches(regex, testString), [regex, testString])
   const { chunks }       = useMemo(() => explainRegex(pattern), [pattern])
 
-  const [hoveredChunkId, setHoveredChunkId] = useState(null)
+  const [hoveredChunkId,  setHoveredChunkId]  = useState(null)
+  const [flashedChunkId,  setFlashedChunkId]  = useState(null)
+  const flashTimer = useRef(null)
+
+  function handleChunkClick(chunkId) {
+    if (flashTimer.current) clearTimeout(flashTimer.current)
+    setFlashedChunkId(chunkId)
+    const card = document.querySelector(`[data-card-chunk-id="${chunkId}"]`)
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    flashTimer.current = setTimeout(() => setFlashedChunkId(null), 700)
+  }
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-gray-900 font-sans">
@@ -58,11 +68,14 @@ export default function App() {
           onTestStringChange={setTestString}
           onFlagToggle={toggleFlag}
           darkMode={darkMode}
+          chunks={chunks}
         />
         <ResultsPanel
           chunks={chunks}
           hoveredChunkId={hoveredChunkId}
           onChunkHover={setHoveredChunkId}
+          flashedChunkId={flashedChunkId}
+          onChunkClick={handleChunkClick}
         />
       </div>
     </div>

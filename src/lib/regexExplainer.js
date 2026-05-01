@@ -4,6 +4,7 @@ export const TOKEN = {
   ESCAPE:      'escape',
   SHORTHAND:   'shorthand',
   CHAR_CLASS:  'charClass',
+  GROUP:       'group',
   LITERAL:     'literal',
   ALTERNATION: 'alternation',
   UNKNOWN:     'unknown',
@@ -25,7 +26,9 @@ function makeChunk(id, raw, start, end, type, opts = {}) {
 }
 
 // Types that can be followed by a quantifier
-const QUANTIFIABLE = new Set([TOKEN.LITERAL, TOKEN.ESCAPE, TOKEN.SHORTHAND, TOKEN.CHAR_CLASS])
+const QUANTIFIABLE = new Set([
+  TOKEN.LITERAL, TOKEN.ESCAPE, TOKEN.SHORTHAND, TOKEN.CHAR_CLASS, TOKEN.GROUP,
+])
 
 // Reads a quantifier (+, *, ?, {n,m}, with optional trailing lazy ?) at index i
 // Mutates the last chunk in the array in place and returns the new cursor position
@@ -78,33 +81,33 @@ const ANCHOR_DESCRIPTIONS = {
 
 const ESCAPE_DESCRIPTIONS = {
   '\\.':  { description: 'Matches a literal dot (the backslash prevents it from meaning "any character")', useCase: null },
-  '\\\\': { description: 'Matches a literal backslash',             useCase: null },
-  '\\n':  { description: 'Matches a newline character',             useCase: null },
-  '\\r':  { description: 'Matches a carriage-return character',     useCase: null },
-  '\\t':  { description: 'Matches a tab character',                 useCase: null },
-  '\\(':  { description: 'Matches a literal opening parenthesis',   useCase: null },
-  '\\)':  { description: 'Matches a literal closing parenthesis',   useCase: null },
+  '\\\\': { description: 'Matches a literal backslash',              useCase: null },
+  '\\n':  { description: 'Matches a newline character',              useCase: null },
+  '\\r':  { description: 'Matches a carriage-return character',      useCase: null },
+  '\\t':  { description: 'Matches a tab character',                  useCase: null },
+  '\\(':  { description: 'Matches a literal opening parenthesis',    useCase: null },
+  '\\)':  { description: 'Matches a literal closing parenthesis',    useCase: null },
   '\\[':  { description: 'Matches a literal opening square bracket', useCase: null },
   '\\]':  { description: 'Matches a literal closing square bracket', useCase: null },
-  '\\{':  { description: 'Matches a literal opening curly brace',   useCase: null },
-  '\\}':  { description: 'Matches a literal closing curly brace',   useCase: null },
-  '\\^':  { description: 'Matches a literal caret character',       useCase: null },
-  '\\$':  { description: 'Matches a literal dollar sign',           useCase: null },
-  '\\|':  { description: 'Matches a literal pipe character',        useCase: null },
-  '\\+':  { description: 'Matches a literal plus sign',             useCase: null },
-  '\\*':  { description: 'Matches a literal asterisk',              useCase: null },
-  '\\?':  { description: 'Matches a literal question mark',         useCase: null },
+  '\\{':  { description: 'Matches a literal opening curly brace',    useCase: null },
+  '\\}':  { description: 'Matches a literal closing curly brace',    useCase: null },
+  '\\^':  { description: 'Matches a literal caret character',        useCase: null },
+  '\\$':  { description: 'Matches a literal dollar sign',            useCase: null },
+  '\\|':  { description: 'Matches a literal pipe character',         useCase: null },
+  '\\+':  { description: 'Matches a literal plus sign',              useCase: null },
+  '\\*':  { description: 'Matches a literal asterisk',               useCase: null },
+  '\\?':  { description: 'Matches a literal question mark',          useCase: null },
 }
 
 // Shorthand class table
 
 const SHORTHAND_DESCRIPTIONS = {
-  '\\d': { description: 'Matches any digit (0 through 9)',                                                useCase: 'Commonly used for: phone numbers, zip codes, numeric IDs' },
-  '\\D': { description: 'Matches any non-digit character',                                                useCase: null },
-  '\\w': { description: 'Matches any word character (letters a–z, A–Z, digits 0–9, or underscore)',      useCase: 'Commonly used for: usernames, identifiers, and alphanumeric input' },
-  '\\W': { description: 'Matches any non-word character (spaces, punctuation, symbols, etc.)',            useCase: null },
-  '\\s': { description: 'Matches any whitespace character (space, tab, newline, carriage return)',        useCase: 'Commonly used for: splitting on whitespace or stripping blank tokens' },
-  '\\S': { description: 'Matches any non-whitespace character',                                           useCase: null },
+  '\\d': { description: 'Matches any digit (0 through 9)',                                           useCase: 'Commonly used for: phone numbers, zip codes, numeric IDs' },
+  '\\D': { description: 'Matches any non-digit character',                                           useCase: null },
+  '\\w': { description: 'Matches any word character (letters a–z, A–Z, digits 0–9, or underscore)', useCase: 'Commonly used for: usernames, identifiers, and alphanumeric input' },
+  '\\W': { description: 'Matches any non-word character (spaces, punctuation, symbols, etc.)',       useCase: null },
+  '\\s': { description: 'Matches any whitespace character (space, tab, newline, carriage return)',   useCase: 'Commonly used for: splitting on whitespace or stripping blank tokens' },
+  '\\S': { description: 'Matches any non-whitespace character',                                      useCase: null },
 }
 
 // Literal description
@@ -190,7 +193,7 @@ function describeCharClass(raw) {
 function scanCharClass(pattern, start) {
   let i = start + 1
   if (i < pattern.length && pattern[i] === '^') i++
-  // ] as first char (after optional ^) is literal, skip it so it doesn't end the scan early
+  // ] as first char (after optional ^) is literal, skip so it doesn't end the scan early
   if (i < pattern.length && pattern[i] === ']') i++
 
   while (i < pattern.length) {
@@ -202,15 +205,54 @@ function scanCharClass(pattern, start) {
   return { end: i, raw: pattern.slice(start, i) }
 }
 
+// Group description and scanner
+
+function describeGroup(raw, captureIndex) {
+  if (raw.startsWith('(?:')) {
+    return {
+      description: 'Non-capturing group: groups the enclosed expression without remembering what it matched',
+      useCase:     'Commonly used for: grouping alternatives or applying a quantifier without creating a numbered capture',
+    }
+  }
+  if (raw.startsWith('(?')) {
+    return {
+      description: 'Advanced group feature (lookahead, lookbehind, or named group)',
+      useCase:     null,
+    }
+  }
+  return {
+    description: `Capturing group ${captureIndex} matches and remembers the enclosed expression`,
+    useCase:     'Commonly used for: extracting parts of a match, such as the domain in a URL or the year in a date',
+  }
+}
+
+// Scans from '(' to the matching ')', respecting escapes, character classes, and nesting
+// Returns { end, raw } where end is the index after the closing ')'
+function scanGroup(pattern, start) {
+  let i     = start + 1
+  let depth = 1
+
+  while (i < pattern.length && depth > 0) {
+    if (pattern[i] === '\\') { i += 2; continue }
+    if (pattern[i] === '[')  { const r = scanCharClass(pattern, i); i = r.end; continue }
+    if (pattern[i] === '(')  { depth++; i++; continue }
+    if (pattern[i] === ')')  { depth--; i++; continue }
+    i++
+  }
+
+  return { end: i, raw: pattern.slice(start, i) }
+}
+
 // Core tokenizer
 
 /**
  * Tokenize a raw regex pattern string into an ordered array of Chunk objects.
  *
- * Current scope: anchors (^ $ \b \B), shorthand classes (\d \w \s and negatives),
- * character classes ([...]), escape sequences, plain literals, alternation (|),
- * and quantifiers (+ * ? {n,m}) attached to their preceding token.
- * Groups are not yet handled, ( ) land as plain literals.
+ * Scope: anchors (^ $ \b \B), shorthand classes (\d \w \s and negatives),
+ * character classes ([...]), capturing and non-capturing groups ((...) (?:...)),
+ * escape sequences, plain literals, alternation (|), and quantifiers (+ * ? {n,m})
+ * attached to their preceding token. Advanced group syntax (lookahead etc.) is
+ * described generically rather than broken down further.
  *
  * @param {string} pattern  raw pattern (no slashes or flags)
  * @returns {{ chunks: Chunk[], warnings: string[] }}
@@ -218,8 +260,9 @@ function scanCharClass(pattern, start) {
 export function explainRegex(pattern) {
   const chunks   = []
   const warnings = []
-  let   i        = 0
-  let   chunkIdx = 0
+  let   i            = 0
+  let   chunkIdx     = 0
+  let   captureCount = 0
 
   while (i < pattern.length) {
     const ch    = pattern[i]
@@ -286,6 +329,18 @@ export function explainRegex(pattern) {
       continue
     }
 
+    // Groups (...)
+    if (ch === '(') {
+      const { end, raw } = scanGroup(pattern, i)
+      const isCapturing  = !raw.startsWith('(?')
+      if (isCapturing) captureCount++
+      const { description, useCase } = describeGroup(raw, captureCount)
+      chunks.push(makeChunk(id, raw, start, end, TOKEN.GROUP, { description, useCase }))
+      i = end
+      i = consumeQuantifier(pattern, i, chunks)
+      continue
+    }
+
     // Alternation
     if (ch === '|') {
       chunks.push(makeChunk(id, '|', start, i + 1, TOKEN.ALTERNATION, {
@@ -305,4 +360,161 @@ export function explainRegex(pattern) {
   }
 
   return { chunks, warnings }
+}
+
+// Summary generator
+// Converts the chunk array into a single plain-English sentence.
+
+function quantifierToPrefix(q) {
+  if (!q) return null
+  if (q === '+' || q === '+?') return 'one or more'
+  if (q === '*' || q === '*?') return 'zero or more'
+  if (q === '?' || q === '??') return 'optionally'
+  const rangeM = q.match(/^\{(\d+),(\d+)\}\??$/)
+  if (rangeM) return `between ${rangeM[1]} and ${rangeM[2]}`
+  const minM = q.match(/^\{(\d+),\}\??$/)
+  if (minM) return `${minM[1]} or more`
+  const exactM = q.match(/^\{(\d+)\}\??$/)
+  if (exactM) return `exactly ${exactM[1]}`
+  return null
+}
+
+// Singular and plural forms for common literal characters
+const LITERAL_FORMS = {
+  ' ':  { single: 'a space',        plural: 'spaces'      },
+  '-':  { single: 'a hyphen',       plural: 'hyphens'     },
+  '_':  { single: 'an underscore',  plural: 'underscores' },
+  '@':  { single: 'an @ symbol',    plural: '@ symbols'   },
+  '#':  { single: 'a # symbol',     plural: '# symbols'   },
+  '/':  { single: 'a slash',        plural: 'slashes'     },
+  '.':  { single: 'a dot',          plural: 'dots'        },
+}
+
+const ESCAPE_LABELS = {
+  '\\.':  'dot',             '\\\\': 'backslash',
+  '\\n':  'newline',         '\\t':  'tab',
+  '\\r':  'carriage return',
+}
+
+const SHORTHAND_LABELS = {
+  '\\d': 'digit',                '\\D': 'non-digit character',
+  '\\w': 'word character',       '\\W': 'non-word character',
+  '\\s': 'whitespace character', '\\S': 'non-whitespace character',
+}
+
+// Returns the chunk's raw text with the quantifier suffix removed
+function chunkBase(chunk) {
+  return chunk.quantifier ? chunk.raw.slice(0, -chunk.quantifier.length) : chunk.raw
+}
+
+// Produces a short readable phrase for one chunk, ready to drop into a sentence
+function chunkToPhrase(chunk) {
+  const pre  = quantifierToPrefix(chunk.quantifier)
+  const base = chunkBase(chunk)
+
+  switch (chunk.type) {
+    case TOKEN.ANCHOR:
+      if (base === '\\b') return 'at a word boundary'
+      if (base === '\\B') return 'at a non-word boundary'
+      return null  // ^ and $ handled at sentence level
+
+    case TOKEN.LITERAL: {
+      const forms = LITERAL_FORMS[base]
+      if (!pre)                 return forms?.single       ?? `"${base}"`
+      if (pre === 'optionally') return `an optional ${forms?.single ?? `"${base}"`}`
+      return `${pre} ${forms?.plural ?? `"${base}" characters`}`
+    }
+
+    case TOKEN.ESCAPE: {
+      const label = ESCAPE_LABELS[base]
+      if (!label)               return `"${base}"`
+      if (!pre)                 return `a literal ${label}`
+      if (pre === 'optionally') return `an optional ${label}`
+      return `${pre} literal ${label}s`
+    }
+
+    case TOKEN.SHORTHAND: {
+      const label = SHORTHAND_LABELS[base]
+      if (!label)               return `"${base}"`
+      if (!pre)                 return `a ${label}`
+      if (pre === 'optionally') return `an optional ${label}`
+      return `${pre} ${label}s`
+    }
+
+    case TOKEN.CHAR_CLASS: {
+      const isNegated = base.startsWith('[^')
+      const singular  = isNegated ? `a character not in ${base}` : `a character from ${base}`
+      const plural    = isNegated ? `characters not in ${base}`  : `characters from ${base}`
+      if (!pre)                 return singular
+      if (pre === 'optionally') return `an optional ${singular}`
+      return `${pre} ${plural}`
+    }
+
+    case TOKEN.GROUP: {
+      const isNonCapturing = chunk.description.startsWith('Non-capturing')
+      const label          = isNonCapturing ? 'the grouped pattern' : 'a captured group'
+      if (!pre)                 return label
+      if (pre === 'optionally') return `an optional ${label}`
+      return `${pre} occurrences of ${label}`
+    }
+
+    case TOKEN.ALTERNATION:
+      return null  // handled as a segment separator below
+
+    default:
+      return `"${base}"`
+  }
+}
+
+/**
+ * Produce a single plain-English sentence describing what the pattern matches
+ * Works from the already-computed chunk array so no extra parsing needed
+ *
+ * @param {Chunk[]} chunks
+ * @returns {string}
+ */
+export function summarizeRegex(chunks) {
+  if (!chunks.length) return ''
+
+  const first = chunks[0]
+  const last  = chunks[chunks.length - 1]
+
+  const startsAnchored = first.type === TOKEN.ANCHOR && first.raw === '^'
+  const endsAnchored   = last.type  === TOKEN.ANCHOR && last.raw  === '$'
+
+  // Strip ^ and $ anchors to inform the intro sentence, not the content
+  const body = chunks.filter(c => !(c.type === TOKEN.ANCHOR && (c.raw === '^' || c.raw === '$')))
+
+  // Split on alternation operators to produce separate alternative segments
+  const segments = []
+  let current = []
+  for (const chunk of body) {
+    if (chunk.type === TOKEN.ALTERNATION) { segments.push(current); current = [] }
+    else                                  { current.push(chunk) }
+  }
+  segments.push(current)
+
+  // Convert each segment to a "X, followed by Y, followed by Z" phrase
+  const segmentStrings = segments
+    .map(seg => {
+      const phrases = seg.map(chunkToPhrase).filter(Boolean)
+      if (!phrases.length) return ''
+      const last = phrases.pop()
+      return phrases.length ? phrases.join(', followed by ') + ', followed by ' + last : last
+    })
+    .filter(Boolean)
+
+  if (!segmentStrings.length) return ''
+
+  const body_sentence = segmentStrings.length === 1
+    ? segmentStrings[0]
+    : segmentStrings.join(', or alternatively ')
+
+  const intro = startsAnchored && endsAnchored ? 'Matches the complete string:'
+    : startsAnchored                           ? 'Matches strings starting with:'
+    : endsAnchored                             ? 'Matches strings ending with:'
+    :                                            'Matches text containing:'
+
+  const cap = body_sentence.charAt(0).toUpperCase() + body_sentence.slice(1)
+  return `${intro} ${cap}.`
 }
