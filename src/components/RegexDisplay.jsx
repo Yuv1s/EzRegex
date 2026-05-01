@@ -1,5 +1,4 @@
-// Per type text color exported so ResultsPanel can reuse the same palette
-// on the raw text line of each breakdown card
+// Per-type text color — exported so ResultsPanel can reuse the same palette
 export const TYPE_TEXT = {
   anchor:      'text-violet-600 dark:text-violet-400',
   escape:      'text-orange-600 dark:text-orange-400',
@@ -11,7 +10,6 @@ export const TYPE_TEXT = {
   unknown:     'text-amber-600 dark:text-amber-400',
 }
 
-// Hover background internal to this component
 const TYPE_BG_HOVER = {
   anchor:      'bg-violet-100 dark:bg-violet-400/20',
   escape:      'bg-orange-100 dark:bg-orange-400/20',
@@ -23,7 +21,6 @@ const TYPE_BG_HOVER = {
   unknown:     'bg-amber-100 dark:bg-amber-400/20',
 }
 
-// Flash color when a card click highlights its span (more prominent than hover)
 const FLASH_BG = 'bg-indigo-200 dark:bg-indigo-500/50'
 
 export default function RegexDisplay({ chunks, hoveredChunkId, onChunkHover, flashedChunkId, onChunkClick }) {
@@ -31,7 +28,7 @@ export default function RegexDisplay({ chunks, hoveredChunkId, onChunkHover, fla
 
   return (
     <div className="px-4 py-3">
-      <p className="font-mono text-sm leading-relaxed break-all">
+      <p className="font-mono text-sm leading-relaxed break-all" aria-label="Regex pattern with syntax highlighting">
         {chunks.map(chunk => {
           const isHovered  = chunk.id === hoveredChunkId
           const isFlashing = chunk.id === flashedChunkId
@@ -46,10 +43,20 @@ export default function RegexDisplay({ chunks, hoveredChunkId, onChunkHover, fla
             <span
               key={chunk.id}
               data-chunk-id={chunk.id}
-              className={`rounded px-0.5 cursor-pointer transition-colors duration-100 ${textClass} ${bgClass}`}
+              role="button"
+              tabIndex={0}
+              aria-label={`${chunk.raw}: ${chunk.description}`}
+              aria-pressed={isFlashing}
+              className={`rounded px-0.5 cursor-pointer transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${textClass} ${bgClass}`}
               onMouseEnter={() => onChunkHover(chunk.id)}
               onMouseLeave={() => onChunkHover(null)}
               onClick={() => onChunkClick(chunk.id)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onChunkClick(chunk.id)
+                }
+              }}
             >
               {chunk.raw}
             </span>

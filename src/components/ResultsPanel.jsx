@@ -1,14 +1,17 @@
 import RegexDisplay, { TYPE_TEXT } from './RegexDisplay'
 
-// Flash color when a span click highlights its card
-const CARD_FLASH_BG  = 'bg-indigo-100 dark:bg-indigo-800/40'
-const CARD_HOVER_BG  = 'bg-indigo-50 dark:bg-indigo-950/40'
+const CARD_FLASH_BG = 'bg-indigo-100 dark:bg-indigo-800/40'
+const CARD_HOVER_BG = 'bg-indigo-50 dark:bg-indigo-950/40'
 
 export default function ResultsPanel({ chunks = [], hoveredChunkId, onChunkHover, flashedChunkId, onChunkClick }) {
   const hasChunks = chunks.length > 0
+  const chunksKey = chunks.map(c => c.id).join('-')
 
   return (
-    <aside className="w-full md:w-72 md:flex-shrink-0 border-t md:border-t-0 md:border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 flex flex-col">
+    <aside
+      className="w-full md:w-72 md:flex-shrink-0 border-t md:border-t-0 md:border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 flex flex-col"
+      aria-label="Regex breakdown"
+    >
       <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
           Breakdown
@@ -35,7 +38,10 @@ export default function ResultsPanel({ chunks = [], hoveredChunkId, onChunkHover
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200 dark:divide-gray-800">
+          <div
+            key={chunksKey}
+            className="divide-y divide-gray-200 dark:divide-gray-800 result-fadein"
+          >
             {chunks.map(chunk => {
               const isFlashing = chunk.id === flashedChunkId
               const isHovered  = chunk.id === hoveredChunkId
@@ -46,10 +52,19 @@ export default function ResultsPanel({ chunks = [], hoveredChunkId, onChunkHover
                 <div
                   key={chunk.id}
                   data-card-chunk-id={chunk.id}
-                  className={`px-4 py-3 cursor-default transition-colors duration-100 ${cardBg}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${chunk.raw}: ${chunk.description}`}
+                  className={`px-4 py-3 cursor-default transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500 ${cardBg}`}
                   onMouseEnter={() => onChunkHover(chunk.id)}
                   onMouseLeave={() => onChunkHover(null)}
                   onClick={() => onChunkClick(chunk.id)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      onChunkClick(chunk.id)
+                    }
+                  }}
                 >
                   <p className={`font-mono text-xs mb-1 ${rawColor}`}>{chunk.raw}</p>
                   <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">

@@ -3,6 +3,7 @@ import Header from './components/Header'
 import Sidebar from './components/Sidebar'
 import EditorPanel from './components/EditorPanel'
 import ResultsPanel from './components/ResultsPanel'
+import Footer from './components/Footer'
 import { parseRegex, getMatches } from './lib/regexEngine'
 import { explainRegex } from './lib/regexExplainer'
 
@@ -13,6 +14,7 @@ export default function App() {
   const [pattern, setPattern] = useState('')
   const [testString, setTestString] = useState('')
   const [flags, setFlags] = useState('g')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     const root = document.documentElement
@@ -34,6 +36,7 @@ export default function App() {
     setPattern(pattern)
     setFlags(flags)
     setTestString(sample)
+    setSidebarOpen(false)
   }
 
   const { regex, error } = useMemo(() => parseRegex(pattern, flags), [pattern, flags])
@@ -54,10 +57,20 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-gray-900 font-sans">
-      <Header darkMode={darkMode} onToggleDark={() => setDarkMode(d => !d)} />
+      <Header
+        darkMode={darkMode}
+        onToggleDark={() => setDarkMode(d => !d)}
+        onToggleSidebar={() => setSidebarOpen(o => !o)}
+      />
 
       <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
-        <Sidebar onLoadExample={loadExample} pattern={pattern} flags={flags} />
+        <Sidebar
+          onLoadExample={loadExample}
+          pattern={pattern}
+          flags={flags}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
         <EditorPanel
           pattern={pattern}
           testString={testString}
@@ -78,6 +91,8 @@ export default function App() {
           onChunkClick={handleChunkClick}
         />
       </div>
+
+      <Footer />
     </div>
   )
 }
