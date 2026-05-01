@@ -1,17 +1,63 @@
-export default function ResultsPanel() {
+import RegexDisplay, { TYPE_TEXT } from './RegexDisplay'
+
+export default function ResultsPanel({ chunks = [], hoveredChunkId, onChunkHover }) {
+  const hasChunks = chunks.length > 0
+
   return (
     <aside className="w-full md:w-72 md:flex-shrink-0 border-t md:border-t-0 md:border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 flex flex-col">
       <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
-          Results
+          Breakdown
         </h2>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-6">
-        <p className="text-sm text-gray-400 dark:text-gray-600 text-center leading-relaxed">
-          Results will appear here —{' '}
-          <span className="text-indigo-400 dark:text-indigo-500 font-mono text-xs">TODO</span>
-        </p>
+      {hasChunks && (
+        <div className="border-b border-gray-200 dark:border-gray-800">
+          <RegexDisplay
+            chunks={chunks}
+            hoveredChunkId={hoveredChunkId}
+            onChunkHover={onChunkHover}
+          />
+        </div>
+      )}
+
+      <div className="flex-1 overflow-y-auto scrollbar-indigo">
+        {!hasChunks ? (
+          <div className="flex items-center justify-center h-full p-6">
+            <p className="text-sm text-gray-400 dark:text-gray-600 text-center leading-relaxed">
+              Type a regex above to see a plain&#8209;English breakdown
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-200 dark:divide-gray-800">
+            {chunks.map(chunk => {
+              const isHovered  = chunk.id === hoveredChunkId
+              const rawColor   = TYPE_TEXT[chunk.type] ?? TYPE_TEXT.unknown
+
+              return (
+                <div
+                  key={chunk.id}
+                  data-chunk-id={chunk.id}
+                  className={`px-4 py-3 cursor-default transition-colors duration-100 ${
+                    isHovered ? 'bg-indigo-50 dark:bg-indigo-950/40' : ''
+                  }`}
+                  onMouseEnter={() => onChunkHover(chunk.id)}
+                  onMouseLeave={() => onChunkHover(null)}
+                >
+                  <p className={`font-mono text-xs mb-1 ${rawColor}`}>{chunk.raw}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                    {chunk.description}
+                  </p>
+                  {chunk.useCase && (
+                    <p className="text-xs text-gray-400 dark:text-gray-600 mt-1 italic leading-relaxed">
+                      {chunk.useCase}
+                    </p>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </aside>
   )

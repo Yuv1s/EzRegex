@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar'
 import EditorPanel from './components/EditorPanel'
 import ResultsPanel from './components/ResultsPanel'
 import { parseRegex, getMatches } from './lib/regexEngine'
+import { explainRegex } from './lib/regexExplainer'
 
 const CANONICAL_FLAG_ORDER = 'gims'
 
@@ -36,7 +37,10 @@ export default function App() {
   }
 
   const { regex, error } = useMemo(() => parseRegex(pattern, flags), [pattern, flags])
-  const matches = useMemo(() => getMatches(regex, testString), [regex, testString])
+  const matches          = useMemo(() => getMatches(regex, testString), [regex, testString])
+  const { chunks }       = useMemo(() => explainRegex(pattern), [pattern])
+
+  const [hoveredChunkId, setHoveredChunkId] = useState(null)
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-gray-900 font-sans">
@@ -55,7 +59,11 @@ export default function App() {
           onFlagToggle={toggleFlag}
           darkMode={darkMode}
         />
-        <ResultsPanel matches={matches} />
+        <ResultsPanel
+          chunks={chunks}
+          hoveredChunkId={hoveredChunkId}
+          onChunkHover={setHoveredChunkId}
+        />
       </div>
     </div>
   )
