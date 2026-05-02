@@ -2,7 +2,7 @@
 
 A visual regex playground with live match highlighting and plain-English breakdowns of every part of your pattern - no docs required.
 
-**[Live demo →](https://ezregex.vercel.app)** *(replace when deployed)*
+**[Live demo →](https://ezregex.vercel.app)** *(https://ezregex.vercel.app)*
 
 ---
 

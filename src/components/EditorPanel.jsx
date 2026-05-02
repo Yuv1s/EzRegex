@@ -97,6 +97,18 @@ export default function EditorPanel({ pattern, testString, error, matches, flags
             aria-invalid={!!error}
             className="flex-1 px-3 py-2.5 font-mono text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-600 outline-none"
           />
+          {pattern && (
+            <button
+              type="button"
+              onClick={() => onPatternChange('')}
+              aria-label="Clear regex"
+              className="px-2 py-2.5 text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 bg-white dark:bg-gray-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
           <span
             className="px-3 py-2.5 text-gray-400 dark:text-gray-500 font-mono text-sm bg-gray-50 dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 select-none"
             aria-label={`flags: ${flags || 'none'}`}

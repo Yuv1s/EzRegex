@@ -34,7 +34,7 @@ export default function ResultsPanel({ chunks = [], hoveredChunkId, onChunkHover
         {!hasChunks ? (
           <div className="flex items-center justify-center h-full p-6">
             <p className="text-sm text-gray-400 dark:text-gray-600 text-center leading-relaxed">
-              Type a regex above to see a plain&#8209;English breakdown
+              Type a regex above to see an English breakdown
             </p>
           </div>
         ) : (

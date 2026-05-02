@@ -21,9 +21,9 @@ This roadmap captures the full development plan: the vision, the technical decis
   - [Step 3 — Live Regex Matching ✅](#step-3--live-regex-matching-)
   - [Step 4 — Flag Toggles ✅](#step-4--flag-toggles-)
   - [Step 5 — Examples Panel ✅](#step-5--examples-panel-)
-  - [Step 6 — Plain-English Breakdown](#step-6--plain-english-breakdown)
-  - [Step 7 — Polish Pass](#step-7--polish-pass)
-  - [Step 8 — Deploy to Vercel](#step-8--deploy-to-vercel)
+  - [Step 6 — Plain-English Breakdown ✅](#step-6--plain-english-breakdown-)
+  - [Step 7 — Polish Pass ✅](#step-7--polish-pass-)
+  - [Step 8 — Deploy to Vercel ✅](#step-8--deploy-to-vercel-)
 - [Git Loop](#git-loop)
 - [Lessons Learned](#lessons-learned)
 
@@ -93,7 +93,8 @@ This project was built with **Claude Code** as a pair programmer in VS Code. I w
 
 **What I built myself:**
 
-- **The plain-English regex breakdown parser** (`src/lib/regexExplainer.js`) - the differentiating feature of the app. I wrote the tokenizer, the explanation logic, and the highlighting connection between regex and explanation by hand, because that's the part I most want to understand deeply.
+- **The plain-English regex breakdown parser** (`src/lib/regexExplainer.js`) - the differentiating feature of the app. I wrote the tokenizer, the explanation logic, and the highlighting connection between regex and explanation by hand. Roughly 4 hours just for the first major pass of the tokenizer, with more time spent over multiple sessions refining it and building the breakdown panel UI on top. This is the part of the project I most wanted to understand deeply, and I do now.
+- **The expanded examples library and live match detection** (`src/data/examples.json` and the sidebar match-and-scroll behavior) - built solo as a warm up before tackling Step 6.
 - **Architectural decisions** - every choice in the table above is mine.
 - **Product direction** - the audience targeting, the focus on plain English explanation as the differentiator, the decision to skip features like multi language regex flavors and URL sharing.
 
@@ -223,7 +224,7 @@ cards should display the regex in monospace and the description below it.
 
 ---
 
-### Step 6 — Plain-English Breakdown
+### Step 6 — Plain-English Breakdown ✅
 
 **Goal:** the differentiating feature. As the user types a regex, a separate "pretty-rendered" view of that regex appears below the input, with each chunk styled and clickable. Beside or below it, a stack of **breakdown cards** explains every chunk in plain English. The two views are **linked bidirectionally** — hovering or clicking a chunk on either side highlights its counterpart.
 
@@ -321,7 +322,7 @@ we'll review.
 
 ---
 
-### Step 7 — Polish Pass
+### Step 7 — Polish Pass ✅
 
 **Goal:** the difference between "side project" and "portfolio piece." Most people would stop after Step 6. The polish pass is what just adds that final touch.
 
@@ -345,7 +346,7 @@ Final polish pass:
 
 ---
 
-### Step 8 — Deploy to Vercel
+### Step 8 — Deploy to Vercel ✅
 
 **Goal:** live URL the world can visit.
 
@@ -392,7 +393,7 @@ git push
 
 ### Step 3 — Live Regex Matching
 
-- *(fill in once complete — what worked, what didn't, surprises)*
+- Straightforward step, no real surprises. The native JavaScript `RegExp` object handled everything I needed and the live highlighting fell out naturally from React state.
 
 ### Step 4 — Flag Toggles
 
@@ -422,10 +423,27 @@ What I took away from doing it without help:
 
 ### Step 6 — Plain-English Breakdown
 
-- *(fill in once complete - what worked, what didn't, surprises)*
+This was the big one. Roughly 4 hours just for the tokenizer in one focused session, then more time over multiple sessions to wire up the breakdown panel, the chunked rendering, the bidirectional hover, and the click to jump scroll. By far the biggest feature of the project and the one I'm most proud of.
+
+- **I underestimated this hard.** When I started I thought "tokenize a regex, write descriptions for each token, done." The reality is that I built a real tokenizer, the same kind of thing a compiler or interpreter has at its front end. Walking the input character by character, holding state, distinguishing token types, handling escape sequences inside character classes, attaching quantifiers to the previous token after the fact, scanning ahead for the closing `]` while respecting escapes inside the class. None of that was on my radar going in. Now I know exactly what it takes.
+- **It turns out I do believe in comments, just not the kind I was avoiding.** Going in I would have told you "I don't comment my code, it's a bad habit." But the few comments I did end up writing in the tokenizer are all explaining *why* something is the way it is, not what the code is doing. Things like "`]` as the very first char inside the class is a literal `]` per the spec." That kind of comment saves future me twenty minutes of re-deriving the rule. The lesson: don't comment what's obvious, do comment what's surprising. That's the actual rule, and I was already following it without realizing.
+- **Software engineering is different from coding.** This was the first time I felt the difference. Choosing a return shape (`{ chunks, warnings }`) before writing the function. Adding a `QUANTIFIABLE` set as a guard rather than scattering quantifier rules across branches. Splitting `scanCharClass` from `describeCharClass` along the find/interpret seam. Deciding what to skip in v1 and being explicit about it in the doc comment. None of that is "writing the right syntax", all of it is "deciding how this code is organized." That's the part that doesn't show up in tutorials.
+- **`describeChar` was eager to be helpful and got it wrong.** Early version described any unrecognized character as a literal, which meant `(` showed up as "Matches the literal character `(`" before I added group support. Confidently wrong is worse than honestly incomplete. Fixed it by guarding before the literal fallthrough so meta-chars become UNKNOWN until a later pass handles them.
+- **Design before code paid off massively for the breakdown UX.** The card format (regex line, plain English description, optional use case line) was decided before I wrote a single component. The bidirectional hover, the click to jump, the chunked rendering, all spec'd in the ROADMAP first. When it came time to build, the UX questions were already answered and I could focus on making the parser correct.
+- **Known limitation in v1:** groups (`(...)` and `(?:...)`) are tokenized correctly and get a single card explaining what kind of group they are, but the *contents* of the group are not broken down further. So `(?:[A-Z][a-z]+\s){2,3}` shows one card saying "non-capturing group, repeats 2 to 3 times" but doesn't separately explain `[A-Z]`, `[a-z]+`, or `\s` inside. Recursive group rendering would have been a meaningful new UI feature and I made the call to ship without it. Documented here on purpose, knowing what's *not* in v1 is as important as knowing what is.
+
+### Step 7 — Polish Pass
+
+- Mostly straightforward. Animations, mobile responsiveness, accessibility passes, and README updates. Nothing notable to call out.
+
+### Step 8 — Deploy to Vercel
+
+- **Vercel is genuinely impressive and I had it wrong in my head.** Going in I figured Vercel was for cheap vibecoders pushing weekend projects, kind of dismissive of it. Turns out it's a real tool. The GitHub integration is the part that surprised me most: connect the repo once, and every commit pushed to main triggers an automatic redeploy of the live site. No build commands to remember, no SSH, no manual upload. Push code, refresh the live URL, see the change. The free tier covers a project like this indefinitely.
+- **The whole deploy took under 10 minutes from "create account" to "live URL."** Vercel auto-detected Vite, set up the build config, gave me a clean default subdomain, and shipped it. Zero ops complexity is a real feature, not a marketing line.
+- **Lesson for next time:** be careful about dismissing tools based on who you've seen using them. Vercel hosting a polished React app and Vercel hosting someone's first todo list are the same Vercel. The tool isn't the project.
 
 ---
 
-*Last updated after Bonus work.*
+*Last updated after Step 8. EzRegex is live.*
 
 *Thanks for following along!*
