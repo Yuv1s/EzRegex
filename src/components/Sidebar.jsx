@@ -139,7 +139,7 @@ export default function Sidebar({ onLoadExample, pattern, flags, isOpen, onClose
             </svg>
             <input
               id="example-search"
-              type="search"
+              type="text"
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Search examples…"
