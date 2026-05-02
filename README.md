@@ -1,4 +1,17 @@
-# EzRegex
+<div align="center">
+  <img src="./src/assets/EzRegexLogo.png" alt="EzRegex Logo" width="120" />
+
+  # EzRegex
+
+  **Regex made readable.**
+
+  [![Live Demo](https://img.shields.io/badge/Live-Demo-6366F1?style=flat)](https://ezregex.vercel.app)
+  [![Deployed on Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=flat&logo=vercel)](https://ezregex.vercel.app)
+  [![Built with React](https://img.shields.io/badge/Built_with-React-61DAFB?style=flat&logo=react)](https://react.dev)
+  [![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
+
+</div>
 
 A visual regex playground with live match highlighting and plain-English breakdowns of every part of your pattern - no docs required.
 
