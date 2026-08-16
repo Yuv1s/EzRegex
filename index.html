@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -10,11 +10,32 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="A visual regex playground that explains patterns in plain English. Test, learn, and master regular expressions." />
+    <!-- Exact sRGB of --ez-canvas in each theme, so the browser chrome matches -->
+    <meta name="theme-color" content="#fbf9f6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#11100d" media="(prefers-color-scheme: dark)" />
     <title>EzRegex</title>
+
+    <!-- Resolve the theme before first paint so there is no flash of the wrong
+         one. Defaults to dark unless the OS explicitly asks for light. -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('ezregex-theme')
+          var dark = saved
+            ? saved === 'dark'
+            : !window.matchMedia('(prefers-color-scheme: light)').matches
+          document.documentElement.classList.toggle('dark', dark)
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+        } catch (e) {
+          document.documentElement.classList.add('dark')
+        }
+      })()
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
   </head>

@@ -3,53 +3,297 @@
 /* Class-based dark mode for Tailwind v4 */
 @variant dark (&:where(.dark, .dark *));
 
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
-  --color-indigo-500: #6366f1;
+/* ============================================================================
+   PALETTE
+
+   A bespoke warm-neutral ramp (hue ~70, chroma under 0.012) rather than
+   Tailwind's stock grays — paper rather than concrete. Colour is spent only
+   where it carries meaning:
+
+     accent (ochre) .... a match, a selection, a focus ring
+     danger (red) ...... an invalid pattern
+     token hues ........ what kind of thing a regex chunk is
+
+   Everything else is neutral. One accent per view, no gradients, no glow.
+   ========================================================================= */
+
+@layer base {
+  :root {
+    color-scheme: light;
+
+    /* Surfaces — canvas sits under everything, surface is raised, sunken is a well */
+    --ez-canvas:      oklch(0.982 0.004 75);
+    --ez-surface:     oklch(1     0     0);
+    --ez-sunken:      oklch(0.955 0.005 75);
+
+    /* Hairlines */
+    --ez-line:        oklch(0.902 0.006 75);
+    --ez-line-strong: oklch(0.838 0.008 75);
+
+    /* Text — every tone here clears 4.5:1 on canvas, surface AND sunken.
+       Tertiary text is only a shade lighter than secondary because anything
+       lighter fails; the hierarchy is carried by size and weight instead. */
+    --ez-ink:         oklch(0.235 0.012 65);
+    --ez-ink-muted:   oklch(0.455 0.012 65);
+    --ez-ink-faint:   oklch(0.535 0.010 65);
+
+    /* Accent — the only interactive colour */
+    --ez-accent:       oklch(0.532 0.125 63);
+    --ez-accent-hover: oklch(0.470 0.130 63);
+    --ez-accent-fill:  oklch(0.565 0.140 63);
+    --ez-accent-on:    oklch(0.992 0.010 75);
+    --ez-accent-soft:  oklch(0.958 0.030 78);
+    --ez-accent-line:  oklch(0.862 0.070 75);
+
+    /* Match highlight — same family, tuned to sit behind body text */
+    --ez-match:       oklch(0.878 0.098 82);
+    --ez-match-line:  oklch(0.760 0.120 75);
+
+    /* Error */
+    --ez-danger:      oklch(0.532 0.190 27);
+    --ez-danger-soft: oklch(0.962 0.024 27);
+
+    /* Regex token hues — grouped by meaning, not one colour per token type */
+    --ez-tok-position:  oklch(0.545 0.155 350); /* ^  $  \b       */
+    --ez-tok-set:       oklch(0.500 0.125 155); /* [a-z]  \d  \w  */
+    --ez-tok-structure: oklch(0.508 0.140 258); /* (...)  |       */
+    --ez-tok-escape:    oklch(0.512 0.105 205); /* \.  \n  \t     */
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    --ez-canvas:      oklch(0.172 0.005 75);
+    --ez-surface:     oklch(0.212 0.006 75);
+    --ez-sunken:      oklch(0.145 0.005 75);
+
+    --ez-line:        oklch(0.288 0.007 75);
+    --ez-line-strong: oklch(0.372 0.009 75);
+
+    --ez-ink:         oklch(0.945 0.005 75);
+    --ez-ink-muted:   oklch(0.722 0.011 70);
+    --ez-ink-faint:   oklch(0.615 0.011 70);
+
+    --ez-accent:       oklch(0.800 0.125 72);
+    --ez-accent-hover: oklch(0.868 0.115 75);
+    --ez-accent-fill:  oklch(0.772 0.140 70);
+    --ez-accent-on:    oklch(0.185 0.020 70);
+    --ez-accent-soft:  oklch(0.272 0.048 70);
+    --ez-accent-line:  oklch(0.382 0.068 70);
+
+    --ez-match:       oklch(0.432 0.098 70);
+    --ez-match-line:  oklch(0.578 0.118 70);
+
+    --ez-danger:      oklch(0.718 0.170 25);
+    --ez-danger-soft: oklch(0.288 0.070 25);
+
+    --ez-tok-position:  oklch(0.775 0.135 350);
+    --ez-tok-set:       oklch(0.762 0.125 155);
+    --ez-tok-structure: oklch(0.752 0.115 258);
+    --ez-tok-escape:    oklch(0.768 0.098 205);
+  }
 }
 
-@keyframes match-appear {
-  from { opacity: 0.35; }
+@theme inline {
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+
+  --color-canvas:      var(--ez-canvas);
+  --color-surface:     var(--ez-surface);
+  --color-sunken:      var(--ez-sunken);
+
+  --color-line:        var(--ez-line);
+  --color-line-strong: var(--ez-line-strong);
+
+  --color-ink:         var(--ez-ink);
+  --color-ink-muted:   var(--ez-ink-muted);
+  --color-ink-faint:   var(--ez-ink-faint);
+
+  --color-accent:       var(--ez-accent);
+  --color-accent-hover: var(--ez-accent-hover);
+  --color-accent-fill:  var(--ez-accent-fill);
+  --color-accent-on:    var(--ez-accent-on);
+  --color-accent-soft:  var(--ez-accent-soft);
+  --color-accent-line:  var(--ez-accent-line);
+
+  --color-match:      var(--ez-match);
+  --color-match-line: var(--ez-match-line);
+
+  --color-danger:      var(--ez-danger);
+  --color-danger-soft: var(--ez-danger-soft);
+
+  --color-tok-position:  var(--ez-tok-position);
+  --color-tok-set:       var(--ez-tok-set);
+  --color-tok-structure: var(--ez-tok-structure);
+  --color-tok-escape:    var(--ez-tok-escape);
+}
+
+/* ============================================================================
+   Z-INDEX SCALE — fixed layers, never arbitrary values
+     30  scrim        40  drawer
+     60  tooltip      70  skip link
+   ========================================================================= */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--ez-canvas);
+    color: var(--ez-ink);
+    /* Geist ships proper tabular figures and a disambiguated l/1/I */
+    font-variant-ligatures: none;
+  }
+
+  ::selection {
+    background-color: var(--ez-accent-soft);
+    color: var(--ez-ink);
+  }
+
+  /* Sensible default so nothing is ever focused invisibly */
+  :focus-visible {
+    outline: 2px solid var(--ez-accent);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Focus rings ------------------------------------------------------------ */
+
+  .focus-ring:focus-visible {
+    outline: 2px solid var(--ez-accent);
+    outline-offset: 2px;
+  }
+
+  /* For controls flush against a scroll container edge, where an outset ring
+     would be clipped */
+  .focus-ring-inset:focus-visible {
+    outline: 2px solid var(--ez-accent);
+    outline-offset: -2px;
+  }
+
+  /* Micro-label used above every panel and field --------------------------- */
+
+  .eyebrow {
+    font-size: 0.6875rem;
+    line-height: 1;
+    font-weight: 500;
+    text-transform: uppercase;
+    /* uppercase at 11px is unreadable without it; the only tracking in the app */
+    letter-spacing: 0.09em;
+    color: var(--ez-ink-faint);
+  }
+
+  /* Skip link -------------------------------------------------------------- */
+
+  .skip-link {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 70;
+    padding: 0.5rem 0.875rem;
+    border-radius: 0.5rem;
+    background-color: var(--ez-accent-fill);
+    color: var(--ez-accent-on);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    transform: translateY(-200%);
+  }
+
+  .skip-link:focus-visible {
+    transform: translateY(0);
+    outline: 2px solid var(--ez-ink);
+    outline-offset: 2px;
+  }
+
+  /* Highlight overlay ------------------------------------------------------
+     The backdrop <div> and the <textarea> must wrap identically or the
+     highlights drift off the text. Both get this class; nothing here may
+     differ between the two layers. */
+
+  .hl-layer {
+    margin: 0;
+    padding: 1rem 1.125rem;
+    border: 0;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.65;
+    letter-spacing: normal;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: normal;
+    tab-size: 2;
+  }
+
+  .regex-match {
+    background-color: var(--ez-match);
+    color: inherit;
+    border-radius: 3px;
+    outline: 1px solid var(--ez-match-line);
+    outline-offset: -1px;
+  }
+
+  /* Scrollbars ------------------------------------------------------------- */
+
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ez-line-strong) transparent;
+  }
+
+  .scroll-thin::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .scroll-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scroll-thin::-webkit-scrollbar-thumb {
+    background-color: var(--ez-line-strong);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 999px;
+  }
+
+  .scroll-thin::-webkit-scrollbar-thumb:hover {
+    background-color: var(--ez-ink-faint);
+  }
+}
+
+/* ============================================================================
+   MOTION — compositor properties only, one-shot, all under 200ms
+   ========================================================================= */
+
+@keyframes ez-fade-in {
+  from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-@keyframes result-fadein {
-  from { opacity: 0.45; }
-  to   { opacity: 1; }
+@keyframes ez-slide-in-left {
+  from { transform: translate3d(-100%, 0, 0); }
+  to   { transform: translate3d(0, 0, 0); }
 }
 
-.regex-match {
-  background-color: rgba(99, 102, 241, 0.25);
-  border-radius: 2px;
-  outline: 1px solid rgba(99, 102, 241, 0.45);
-  outline-offset: -1px;
-  color: inherit;
-  animation: match-appear 150ms ease-out;
+@keyframes ez-rise {
+  from { opacity: 0; transform: translate3d(0, 3px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
-.result-fadein {
-  animation: result-fadein 150ms ease-out;
+@layer components {
+  .animate-fade-in  { animation: ez-fade-in 140ms ease-out; }
+  .animate-rise     { animation: ez-rise 160ms ease-out; }
+  .animate-drawer   { animation: ez-slide-in-left 180ms ease-out; }
 }
 
-.scrollbar-indigo {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(99, 102, 241, 0.45) transparent;
-}
-
-.scrollbar-indigo::-webkit-scrollbar {
-  width: 6px;
-}
-
-.scrollbar-indigo::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollbar-indigo::-webkit-scrollbar-thumb {
-  background-color: rgba(99, 102, 241, 0.4);
-  border-radius: 3px;
-}
-
-.scrollbar-indigo::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(99, 102, 241, 0.65);
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

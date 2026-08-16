@@ -113,16 +113,18 @@ const SHORTHAND_DESCRIPTIONS = {
 // Literal description
 
 function describeChar(ch) {
+  // These read as full phrases — dropping them into `the literal character
+  // "..."` produced things like: the literal character "the @ symbol"
   const named = {
     ' ':  'a space character',
     '\t': 'a tab character',
-    '-':  'a hyphen',
-    '_':  'an underscore',
-    '@':  'the @ symbol',
-    '#':  'the # symbol',
-    '/':  'a forward slash',
+    '-':  'a literal hyphen (-)',
+    '_':  'a literal underscore (_)',
+    '@':  'a literal at sign (@)',
+    '#':  'a literal hash (#)',
+    '/':  'a literal forward slash (/)',
   }
-  return `Matches the literal character "${named[ch] ?? ch}"`
+  return named[ch] ? `Matches ${named[ch]}` : `Matches the literal character "${ch}"`
 }
 
 // Character class description helpers
@@ -147,11 +149,16 @@ function describeCharClass(raw) {
   let negated = false
   const parts = []
 
+  // An unterminated class ("[abc") is still worth describing — the error
+  // message covers the syntax, this covers the intent. Only stop short of the
+  // final char when that char is the closing bracket.
+  const limit = raw.length > 1 && raw.endsWith(']') ? raw.length - 1 : raw.length
+
   if (raw[i] === '^') { negated = true; i++ }
   // ] as the very first char inside the class is a literal ] per the spec
-  if (raw[i] === ']') { parts.push('"["'); i++ }
+  if (i < limit && raw[i] === ']') { parts.push('"]"'); i++ }
 
-  while (i < raw.length - 1) {
+  while (i < limit) {
     const ch = raw[i]
 
     if (ch === '\\') {
@@ -170,7 +177,7 @@ function describeCharClass(raw) {
       i += 2
     } else if (
       raw[i + 1] === '-' &&
-      i + 2 <= raw.length - 2 &&
+      i + 2 < limit &&
       ch !== '-' &&             // leading - is literal, not a range start
       raw[i + 2] !== '-'        // trailing - is literal, not a range end
     ) {

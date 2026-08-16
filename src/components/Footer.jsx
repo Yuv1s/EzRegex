@@ -1,35 +1,31 @@
+const linkClass =
+  'focus-ring rounded text-ink-muted underline-offset-4 transition-colors duration-100 ease-out hover:text-ink hover:underline'
+
 export default function Footer() {
   return (
-    <footer className="flex-shrink-0 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-4 py-2 flex items-center justify-between text-xs text-gray-400 dark:text-gray-600">
+    <footer
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      className="flex h-9 flex-shrink-0 items-center justify-between gap-4 border-t border-line bg-surface px-3 text-xs text-ink-faint md:px-5"
+    >
       <span>
         Built by{' '}
-        <a
-          href="https://github.com/yuv1s"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded"
-        >
+        <a href="https://github.com/yuv1s" target="_blank" rel="noopener noreferrer" className={linkClass}>
           yuv1s
         </a>
       </span>
 
-      <span className="flex items-center gap-1">
-        Built with{' '}
-        <a
-          href="https://react.dev"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded"
-        >
+      <span className="hidden sm:block">
+        Everything runs in your browser — nothing is sent anywhere
+      </span>
+
+      <span>
+        <a href="https://react.dev" target="_blank" rel="noopener noreferrer" className={linkClass}>
           React
         </a>
-        {' + '}
-        <a
-          href="https://vitejs.dev"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded"
-        >
+        <span className="px-1.5 text-line-strong" aria-hidden="true">
+          ·
+        </span>
+        <a href="https://vitejs.dev" target="_blank" rel="noopener noreferrer" className={linkClass}>
           Vite
         </a>
       </span>
